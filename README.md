@@ -3,17 +3,25 @@
 *"Every time you place a stone on the board, you are exposing something of yourself."*
 — Takeo Kajiwara
 
-This is not a normal Go board...
+You've found something.
 
-## What Is This?
+## The Board
 
-A web-based Go game that makes placing stones feel like commanding armies in a fantasy war. Think hologram chess from Star Wars, but it's Go, and the pieces evolve as your groups grow stronger.
+A lone stone appears as a scout—watchful, vulnerable. Place another beside it: they recognize each other, become a patrol. Add more and a banner rises. The pieces don't just occupy intersections. They remember. They grow in the presence of allies. They face enemies together.
 
-Play from your phone. Play from your laptop. Play from anywhere. 
+Territory transforms as you play. Scorched earth where attackers advance. Cultivated fields where defenders hold ground. When a group falls, stones don't simply disappear—they crumble. The board absorbs them. The game continues.
+
+This is not simulation. This is how the board has always worked. You've just never seen it before.
+
+Ancient game. Ancient magic. Minimal. Tasteful. Real.
 
 ## The Vibe
 
-Welcome to **Grim Toon** Go: where Warhammer's brooding darkness meets Clash Royale's chunky charm. Stones don't just sit there—they *live*.
+Stones evolve: scout → patrol → war band → battalion → legion with siege engines.
+
+Territory responds: farmland vs scorched earth. Camps become keeps. Keeps become citadels.
+
+Simple rules. Deep presence. Every move reshapes what was and what becomes.
 
 ## The Philosophy
 
