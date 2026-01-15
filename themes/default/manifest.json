@@ -1,0 +1,10 @@
+{
+  "name": "Default",
+  "author": "Go Project",
+  "version": "1.0.0",
+  "description": "Simple circles for MVP",
+  "pieces": {
+    "black": "pieces/black.svg",
+    "white": "pieces/white.svg"
+  }
+}

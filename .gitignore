@@ -1,0 +1,16 @@
+# Rust
+/target
+Cargo.lock
+
+# Frontend
+frontend/node_modules
+frontend/dist
+
+# Runtime
+game.json
+*.log
+
+# OS
+.DS_Store
+.vscode/
+.idea/
