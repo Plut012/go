@@ -1,73 +1,41 @@
 # Go
 
-A minimal, robust web-based Go game for two players.
+*"Every time you place a stone on the board, you are exposing something of yourself."*
+— Takeo Kajiwara
 
-## Quick Start
+This is not a normal Go board...
 
-### Prerequisites
-- Rust (1.75+): [Install](https://rustup.rs/)
-- Node.js (18+): [Install](https://nodejs.org/)
+## What Is This?
 
-### Development
+A web-based Go game that makes placing stones feel like commanding armies in a fantasy war. Think hologram chess from Star Wars, but it's Go, and the pieces evolve as your groups grow stronger.
 
-```bash
-# Terminal 1: Run backend
-cargo run
+Play from your phone. Play from your laptop. Play from anywhere. 
 
-# Terminal 2: Run frontend dev server
-cd frontend
-npm install
-npm run dev
+## The Vibe
 
-# Open http://localhost:5173 (Vite dev server with HMR)
-```
+Welcome to **Grim Toon** Go: where Warhammer's brooding darkness meets Clash Royale's chunky charm. Stones don't just sit there—they *live*.
 
-### Production Build
+## The Philosophy
 
-```bash
-# Build frontend
-cd frontend
-npm install
-npm run build
-cd ..
+Simple. Robust. Concise. Clean. Decoupled.
 
-# Build and run backend (serves frontend from dist/)
-cargo build --release
-./target/release/go-server
+Every line earns its place. No abstractions for abstraction's sake. The backend knows the rules. The frontend knows how things look. Neither knows about the other. That's how it should be.
 
-# Open http://localhost:3000
-```
+---
 
-### Deploy
+## Tech Stack
 
-Run the binary on a server and share the URL:
+- **Rust backend** - Because game rules should be bulletproof
+- **Svelte frontend** - Because UIs should disappear
+- **SVG + themes** - Because your stones deserve better than circles
+- **WebSocket** - Because waiting is for chumps
 
-```bash
-# On VPS or local machine
-./target/release/go-server
+Zero runtime dependencies. One binary. No database. No bullshit.
 
-# Share with friend:
-# http://your-ip:3000
-# Or use ngrok: ngrok http 3000
-```
+## Getting Started
 
-## Project Structure
-
-```
-├── src/              # Rust backend (game logic, WebSocket, static serving)
-├── frontend/         # Svelte frontend (UI, board rendering, theme loading)
-├── themes/           # Theme assets (SVG pieces, CSS, manifest)
-└── docs/             # Documentation (MVP plan, rules, philosophy)
-```
-
-## Documentation
-
-- [MVP Plan](docs/mvp_plan.md) - Implementation roadmap
-- [Overview](docs/overview.md) - Project goals and philosophy
-- [Go Rules](docs/go_rules.md) - Complete ruleset
-- [Theme System](docs/theme.md) - Visual theming architecture
-- [Zen](docs/zen.md) - The spirit of Go
+See [docs/setup.md](docs/setup.md) for the boring details.
 
 ## Current Status
+MVP in progress. Core game logic and visual themes coming soon.
 
-**MVP in progress** - Core game logic and UI scaffolding in place. See `docs/mvp_plan.md` for implementation phases.
