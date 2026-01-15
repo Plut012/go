@@ -49,3 +49,37 @@ Create a clear, detailed technical plan for implementing the feature. This plan 
 
 ### 5. IMPLEMENTATION
 Build the feature, ensuring simplicity and robustness throughout. If a decision point arises during implementation, pause and begin discussion—present the options with pros and cons. We decide together how to proceed.
+
+--- 
+
+# Technical Stack
+
+### Backend
+- Rust with Axum — minimal web framework, async, WebSocket support
+- No database — game state lives in memory (HashMap of active games)
+- Single binary deployment
+
+### Communication
+- WebSocket for real-time moves between players
+- JSON payloads (simple, debuggable)
+
+### Frontend
+- Svelte — reactive, minimal runtime, clean component model
+- SVG rendering — scalable pieces, easy theme swapping
+- CSS custom properties for palette tokens
+
+### Build/Dev
+- Cargo for backend
+- Vite for frontend (fast HMR with Svelte)
+- Both run independently during development
+
+### Hosting
+- Static files (frontend) served from anywhere
+- Rust binary on a small VPS, Fly.io, or similar
+
+### Why this stack:
+- Zero runtime dependencies on backend (no Node, no Python, no DB)
+- Frontend framework disappears at build time (Svelte compiles away)
+- WebSocket keeps latency low, code simple
+- SVG + CSS variables = themes are just asset folders
+
