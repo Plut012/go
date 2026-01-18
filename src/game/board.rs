@@ -1,9 +1,10 @@
 use super::types::{Color, Position};
+use std::collections::HashSet;
 
 const BOARD_SIZE: usize = 19;
 
-pub struct Board {
-    grid: [[Option<Color>; BOARD_SIZE]; BOARD_SIZE],
+pub(crate) struct Board {
+    pub(crate) grid: [[Option<Color>; BOARD_SIZE]; BOARD_SIZE],
 }
 
 impl Board {
@@ -31,11 +32,46 @@ impl Board {
         self.get(pos).is_none()
     }
 
+    /// Find all stones in the same group as the stone at the given position
+    /// Uses flood fill to find connected stones of the same color
+    pub(crate) fn find_group(&self, pos: Position) -> HashSet<Position> {
+        let mut group = HashSet::new();
+        let stone_color = match self.get(pos) {
+            Some(color) => color,
+            None => return group, // No stone at position
+        };
+
+        let mut to_visit = vec![pos];
+        group.insert(pos);
+
+        while let Some(current) = to_visit.pop() {
+            for adjacent in current.adjacent() {
+                if group.contains(&adjacent) {
+                    continue; // Already visited
+                }
+                if self.get(adjacent) == Some(stone_color) {
+                    group.insert(adjacent);
+                    to_visit.push(adjacent);
+                }
+            }
+        }
+
+        group
+    }
+
     /// Count liberties for a stone at the given position
-    pub fn count_liberties(&self, pos: Position) -> usize {
-        // TODO: Implement liberty counting for groups
-        // - Find all stones in the group (connected same-color stones)
-        // - Count empty adjacent intersections
-        0
+    pub(crate) fn count_liberties(&self, pos: Position) -> usize {
+        let group = self.find_group(pos);
+        let mut liberties = HashSet::new();
+
+        for &stone_pos in &group {
+            for adjacent in stone_pos.adjacent() {
+                if self.is_empty(adjacent) {
+                    liberties.insert(adjacent);
+                }
+            }
+        }
+
+        liberties.len()
     }
 }
