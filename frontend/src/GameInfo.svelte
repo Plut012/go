@@ -10,19 +10,32 @@
 <div class="game-info">
   <div class="info-row">
     <span class="label">You are:</span>
-    <span class="value">{myColor || 'Not assigned'}</span>
+    <span class="value" class:highlight={myColor}>{myColor || 'Not assigned'}</span>
   </div>
 
   {#if gameState}
     <div class="info-row">
+      <span class="label">Players:</span>
+      <span class="value">
+        Black {gameState.players?.black ? '✓' : '◯'} |
+        White {gameState.players?.white ? '✓' : '◯'}
+      </span>
+    </div>
+
+    <div class="info-row">
       <span class="label">Turn:</span>
-      <span class="value">{gameState.turn || 'Black'}</span>
+      <span class="value turn-indicator" class:active={gameState.turn === myColor}>
+        {gameState.turn || 'Black'}
+        {#if gameState.turn === myColor}
+          (Your turn!)
+        {/if}
+      </span>
     </div>
 
     <div class="info-row">
       <span class="label">Prisoners:</span>
       <span class="value">
-        Black: {gameState.prisoners?.black || 0},
+        Black: {gameState.prisoners?.black || 0} |
         White: {gameState.prisoners?.white || 0}
       </span>
     </div>
@@ -36,42 +49,58 @@
 
 <style>
   .game-info {
-    margin: 1rem 0;
-    padding: 1rem;
-    background: #2a2a2a;
-    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 
   .info-row {
-    margin: 0.5rem 0;
     display: flex;
-    justify-content: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.2rem;
   }
 
   .label {
-    font-weight: bold;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+  }
+
+  .value {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .value.highlight {
+    color: #4a9eff;
+  }
+
+  .turn-indicator.active {
+    color: #4aff9e;
   }
 
   .buttons {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     display: flex;
-    justify-content: center;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.6rem;
   }
 
   button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
     cursor: pointer;
-    border: 2px solid #666;
-    background: #3a3a3a;
+    border: 1px solid #444;
+    background: transparent;
     color: #e0e0e0;
-    border-radius: 4px;
-    min-height: 44px;
+    border-radius: 2px;
+    min-height: 36px;
+    transition: all 0.15s ease;
   }
 
   button:hover {
-    background: #4a4a4a;
+    border-color: #666;
+    background: rgba(255, 255, 255, 0.05);
   }
 </style>

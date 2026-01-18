@@ -39,8 +39,26 @@
       />
     {/each}
 
-    <!-- Stones (TODO: render from gameState) -->
-    <!-- For now, just clickable intersections -->
+    <!-- Stones -->
+    {#if gameState && gameState.board}
+      {#each gameState.board as row, y}
+        {#each row as stone, x}
+          {#if stone}
+            <circle
+              cx={40 + x * 40}
+              cy={40 + y * 40}
+              r="18"
+              fill={stone === 'black' ? '#000' : '#fff'}
+              stroke={stone === 'white' ? '#000' : 'none'}
+              stroke-width="1"
+              class="stone"
+            />
+          {/if}
+        {/each}
+      {/each}
+    {/if}
+
+    <!-- Clickable intersections -->
     {#each Array(BOARD_SIZE) as _, y}
       {#each Array(BOARD_SIZE) as _, x}
         <circle
@@ -58,13 +76,13 @@
 
 <style>
   .board-container {
-    margin: 1rem auto;
-    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 1;
   }
 
   .board {
     width: 100%;
-    height: auto;
+    height: 100%;
     background: #dcb; /* goban color */
     border-radius: 4px;
   }
@@ -75,5 +93,9 @@
 
   .intersection:hover {
     fill: rgba(0, 0, 0, 0.1);
+  }
+
+  .stone {
+    pointer-events: none;
   }
 </style>

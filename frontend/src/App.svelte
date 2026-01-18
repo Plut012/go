@@ -67,30 +67,41 @@
 </script>
 
 <main>
-  <h1>Go</h1>
-
   {#if !connected}
-    <div class="status">Connecting...</div>
+    <div class="center-message">
+      <div class="status">Connecting...</div>
+    </div>
   {:else if !myColor}
-    <div class="color-selection">
-      <h2>Choose your color</h2>
-      <button on:click={() => chooseColor('black')}>Play as Black</button>
-      <button on:click={() => chooseColor('white')}>Play as White</button>
+    <div class="center-message">
+      <div class="color-selection">
+        <h2>Choose your color</h2>
+        <button on:click={() => chooseColor('black')}>Play as Black</button>
+        <button on:click={() => chooseColor('white')}>Play as White</button>
+      </div>
     </div>
   {:else}
-    <GameInfo {gameState} {myColor} on:pass={pass} on:reset={reset} />
-    <Board {gameState} on:move={(e) => makeMove(e.detail.x, e.detail.y)} />
+    <div class="game-layout">
+      <aside class="sidebar">
+        <GameInfo {gameState} {myColor} on:pass={pass} on:reset={reset} />
+      </aside>
+      <div class="board-area">
+        <Board {gameState} on:move={(e) => makeMove(e.detail.x, e.detail.y)} />
+      </div>
+    </div>
   {/if}
 </main>
 
 <style>
   main {
-    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+  .center-message {
+    text-align: center;
   }
 
   .status {
@@ -104,6 +115,8 @@
 
   .color-selection h2 {
     margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: normal;
   }
 
   .color-selection button {
@@ -121,5 +134,65 @@
 
   .color-selection button:hover {
     background: #3a3a3a;
+  }
+
+  .game-layout {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 200px;
+    padding: 2rem 1.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 10;
+  }
+
+  .board-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    padding: 2rem;
+  }
+
+  .board-area :global(.board-container) {
+    width: min(92vh, 1380px);
+    height: min(92vh, 1380px);
+  }
+
+  @media (max-width: 900px) {
+    .game-layout {
+      flex-direction: column;
+      height: auto;
+    }
+
+    .sidebar {
+      position: relative;
+      width: 100%;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+    }
+
+    .board-area {
+      padding: 1rem;
+      height: auto;
+    }
+
+    .board-area :global(.board-container) {
+      width: min(95vw, 600px);
+      height: min(95vw, 600px);
+    }
   }
 </style>
