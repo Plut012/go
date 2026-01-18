@@ -28,23 +28,31 @@ impl Position {
     }
 
     pub fn is_valid(&self) -> bool {
-        self.x < 19 && self.y < 19
+        self.is_valid_for_size(19)
+    }
+
+    pub fn is_valid_for_size(&self, size: usize) -> bool {
+        self.x < size && self.y < size
     }
 
     /// Get adjacent positions (up, down, left, right)
     pub fn adjacent(&self) -> Vec<Position> {
+        self.adjacent_for_size(19)
+    }
+
+    pub fn adjacent_for_size(&self, size: usize) -> Vec<Position> {
         let mut positions = Vec::new();
 
         if self.x > 0 {
             positions.push(Position::new(self.x - 1, self.y));
         }
-        if self.x < 18 {
+        if self.x < size - 1 {
             positions.push(Position::new(self.x + 1, self.y));
         }
         if self.y > 0 {
             positions.push(Position::new(self.x, self.y - 1));
         }
-        if self.y < 18 {
+        if self.y < size - 1 {
             positions.push(Position::new(self.x, self.y + 1));
         }
 

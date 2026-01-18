@@ -14,12 +14,20 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
+        Self::with_size(19)
+    }
+
+    pub fn with_size(size: usize) -> Self {
         Self {
-            board: board::Board::new(),
+            board: board::Board::with_size(size),
             turn: Color::Black,
             prisoners: (0, 0),
             history: Vec::new(),
         }
+    }
+
+    pub fn reset_with_size(&mut self, size: usize) {
+        *self = Self::with_size(size);
     }
 
     /// Attempt to place a stone at the given position
@@ -94,15 +102,21 @@ impl Game {
 
     /// Get the current board state as a 2D vector for serialization
     pub fn get_board(&self) -> Vec<Vec<Option<Color>>> {
-        let mut result = Vec::with_capacity(19);
-        for y in 0..19 {
-            let mut row = Vec::with_capacity(19);
-            for x in 0..19 {
+        let size = self.board.size();
+        let mut result = Vec::with_capacity(size);
+        for y in 0..size {
+            let mut row = Vec::with_capacity(size);
+            for x in 0..size {
                 row.push(self.board.get(Position::new(x, y)));
             }
             result.push(row);
         }
         result
+    }
+
+    /// Get the board size
+    pub fn get_board_size(&self) -> usize {
+        self.board.size()
     }
 
     /// Get the current turn

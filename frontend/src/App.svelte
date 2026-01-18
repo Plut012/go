@@ -1,6 +1,7 @@
 <script>
   import Board from './Board.svelte';
   import GameInfo from './GameInfo.svelte';
+  import BoardSizeModal from './BoardSizeModal.svelte';
   import { createConnection } from './lib/websocket.js';
   import { loadTheme } from './lib/theme.js';
   import { onMount } from 'svelte';
@@ -9,6 +10,7 @@
   let gameState = null;
   let myColor = null;
   let ws = null;
+  let showSizeModal = false;
 
   onMount(async () => {
     // Load default theme
@@ -59,10 +61,20 @@
     }
   }
 
-  function reset() {
+  function requestReset() {
+    showSizeModal = true;
+  }
+
+  function handleSizeSelect(event) {
+    const size = event.detail.size;
+    showSizeModal = false;
     if (ws && connected) {
-      ws.send(JSON.stringify({ type: 'reset' }));
+      ws.send(JSON.stringify({ type: 'reset', board_size: size }));
     }
+  }
+
+  function closeSizeModal() {
+    showSizeModal = false;
   }
 </script>
 
@@ -82,12 +94,15 @@
   {:else}
     <div class="game-layout">
       <aside class="sidebar">
-        <GameInfo {gameState} {myColor} on:pass={pass} on:reset={reset} />
+        <GameInfo {gameState} {myColor} on:pass={pass} on:reset={requestReset} />
       </aside>
       <div class="board-area">
         <Board {gameState} on:move={(e) => makeMove(e.detail.x, e.detail.y)} />
       </div>
     </div>
+    {#if showSizeModal}
+      <BoardSizeModal on:select={handleSizeSelect} on:close={closeSizeModal} />
+    {/if}
   {/if}
 </main>
 

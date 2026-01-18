@@ -4,7 +4,25 @@
   export let gameState = null;
 
   const dispatch = createEventDispatcher();
-  const BOARD_SIZE = 19;
+
+  $: boardSize = gameState?.board_size || 19;
+
+  // Calculate offset to center the board in the SVG viewBox
+  $: offset = (800 - (boardSize - 1) * 40) / 2;
+
+  // Star points (hoshi) for different board sizes
+  $: starPoints = getStarPoints(boardSize);
+
+  function getStarPoints(size) {
+    if (size === 19) {
+      return [[3,3], [3,9], [3,15], [9,3], [9,9], [9,15], [15,3], [15,9], [15,15]];
+    } else if (size === 13) {
+      return [[3,3], [3,9], [6,6], [9,3], [9,9]];
+    } else if (size === 9) {
+      return [[2,2], [2,6], [4,4], [6,2], [6,6]];
+    }
+    return [];
+  }
 
   function handleClick(x, y) {
     dispatch('move', { x, y });
@@ -14,26 +32,26 @@
 <div class="board-container">
   <svg viewBox="0 0 800 800" class="board">
     <!-- Board grid -->
-    {#each Array(BOARD_SIZE) as _, i}
+    {#each Array(boardSize) as _, i}
       <line
-        x1={40} y1={40 + i * 40}
-        x2={760} y2={40 + i * 40}
+        x1={offset} y1={offset + i * 40}
+        x2={offset + (boardSize - 1) * 40} y2={offset + i * 40}
         stroke="#8b7355"
         stroke-width="1"
       />
       <line
-        x1={40 + i * 40} y1={40}
-        x2={40 + i * 40} y2={760}
+        x1={offset + i * 40} y1={offset}
+        x2={offset + i * 40} y2={offset + (boardSize - 1) * 40}
         stroke="#8b7355"
         stroke-width="1"
       />
     {/each}
 
     <!-- Star points (hoshi) -->
-    {#each [[3,3], [3,9], [3,15], [9,3], [9,9], [9,15], [15,3], [15,9], [15,15]] as [x, y]}
+    {#each starPoints as [x, y]}
       <circle
-        cx={40 + x * 40}
-        cy={40 + y * 40}
+        cx={offset + x * 40}
+        cy={offset + y * 40}
         r="4"
         fill="#8b7355"
       />
@@ -45,8 +63,8 @@
         {#each row as stone, x}
           {#if stone}
             <circle
-              cx={40 + x * 40}
-              cy={40 + y * 40}
+              cx={offset + x * 40}
+              cy={offset + y * 40}
               r="18"
               fill={stone === 'black' ? '#000' : '#fff'}
               stroke={stone === 'white' ? '#000' : 'none'}
@@ -59,11 +77,11 @@
     {/if}
 
     <!-- Clickable intersections -->
-    {#each Array(BOARD_SIZE) as _, y}
-      {#each Array(BOARD_SIZE) as _, x}
+    {#each Array(boardSize) as _, y}
+      {#each Array(boardSize) as _, x}
         <circle
-          cx={40 + x * 40}
-          cy={40 + y * 40}
+          cx={offset + x * 40}
+          cy={offset + y * 40}
           r="18"
           fill="transparent"
           class="intersection"

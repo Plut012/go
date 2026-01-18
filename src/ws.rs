@@ -16,7 +16,7 @@ enum ClientMessage {
     ChooseColor { color: Color },
     Move { x: usize, y: usize },
     Pass,
-    Reset,
+    Reset { board_size: usize },
 }
 
 /// Messages sent from server to client
@@ -25,6 +25,7 @@ enum ClientMessage {
 enum ServerMessage {
     State {
         board: Vec<Vec<Option<Color>>>,
+        board_size: usize,
         turn: Color,
         prisoners: Prisoners,
         players: Players,
@@ -134,6 +135,7 @@ async fn broadcast_state(state: &AppState) {
 
     let msg = ServerMessage::State {
         board: game.get_board(),
+        board_size: game.get_board_size(),
         turn: game.get_turn(),
         prisoners: Prisoners {
             black: game.get_prisoners().0,
@@ -199,8 +201,8 @@ async fn handle_message(state: &AppState, conn_id: u64, text: &str) {
         ClientMessage::Pass => {
             handle_pass(state, conn_id).await;
         }
-        ClientMessage::Reset => {
-            handle_reset(state).await;
+        ClientMessage::Reset { board_size } => {
+            handle_reset(state, board_size).await;
         }
     }
 }
@@ -294,9 +296,9 @@ async fn handle_pass(state: &AppState, conn_id: u64) {
 }
 
 /// Handle game reset
-async fn handle_reset(state: &AppState) {
+async fn handle_reset(state: &AppState, board_size: usize) {
     let mut game = state.game.lock().await;
-    game.reset();
+    game.reset_with_size(board_size);
     drop(game);
 
     // Clear color assignments

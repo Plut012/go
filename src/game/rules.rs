@@ -5,6 +5,7 @@ use super::types::{Color, Position};
 pub fn is_suicide(board: &Board, pos: Position, color: Color) -> bool {
     // Create a temporary board to test the move
     let mut test_board = Board {
+        size: board.size(),
         grid: board.grid.clone(),
     };
 
@@ -34,9 +35,11 @@ pub fn find_captures(board: &Board, opponent_color: Color) -> Vec<Position> {
     let mut captured = Vec::new();
     let mut checked_groups: HashSet<Position> = HashSet::new();
 
+    let size = board.size();
+
     // Scan board for opponent stones
-    for y in 0..19 {
-        for x in 0..19 {
+    for y in 0..size {
+        for x in 0..size {
             let pos = Position::new(x, y);
 
             // Skip if already checked as part of another group
@@ -85,8 +88,10 @@ pub fn is_ko_violation(board_hash: u64, history: &[u64]) -> bool {
 pub fn hash_board(board: &Board) -> u64 {
     let mut hash: u64 = 0;
 
-    for y in 0..19 {
-        for x in 0..19 {
+    let size = board.size();
+
+    for y in 0..size {
+        for x in 0..size {
             let pos = Position::new(x, y);
             if let Some(color) = board.get(pos) {
                 // XOR with a unique value for each (position, color) pair
