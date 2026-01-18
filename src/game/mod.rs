@@ -91,6 +91,29 @@ impl Game {
     pub fn reset(&mut self) {
         *self = Self::new();
     }
+
+    /// Get the current board state as a 2D vector for serialization
+    pub fn get_board(&self) -> Vec<Vec<Option<Color>>> {
+        let mut result = Vec::with_capacity(19);
+        for y in 0..19 {
+            let mut row = Vec::with_capacity(19);
+            for x in 0..19 {
+                row.push(self.board.get(Position::new(x, y)));
+            }
+            result.push(row);
+        }
+        result
+    }
+
+    /// Get the current turn
+    pub fn get_turn(&self) -> Color {
+        self.turn
+    }
+
+    /// Get prisoner counts (black_captured, white_captured)
+    pub fn get_prisoners(&self) -> (u32, u32) {
+        self.prisoners
+    }
 }
 
 #[cfg(test)]
