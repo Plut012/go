@@ -3,6 +3,8 @@
 
   export let gameState = null;
   export let myColor = null;
+  export let aiMode = false;
+  export let aiColor = null;
 
   const dispatch = createEventDispatcher();
 </script>
@@ -14,13 +16,20 @@
   </div>
 
   {#if gameState}
-    <div class="info-row">
-      <span class="label">Players:</span>
-      <span class="value">
-        Black {gameState.players?.black ? '✓' : '◯'} |
-        White {gameState.players?.white ? '✓' : '◯'}
-      </span>
-    </div>
+    {#if !aiMode}
+      <div class="info-row">
+        <span class="label">Players:</span>
+        <span class="value">
+          Black {gameState.players?.black ? '✓' : '◯'} |
+          White {gameState.players?.white ? '✓' : '◯'}
+        </span>
+      </div>
+    {:else}
+      <div class="info-row">
+        <span class="label">Mode:</span>
+        <span class="value">vs AI ({aiColor})</span>
+      </div>
+    {/if}
 
     <div class="info-row">
       <span class="label">Turn:</span>
@@ -28,6 +37,8 @@
         {gameState.turn || 'Black'}
         {#if gameState.turn === myColor}
           (Your turn!)
+        {:else if aiMode && gameState.turn === aiColor}
+          <span class="ai-thinking">thinking...</span>
         {/if}
       </span>
     </div>
@@ -102,5 +113,10 @@
   button:hover {
     border-color: #666;
     background: rgba(255, 255, 255, 0.05);
+  }
+
+  .ai-thinking {
+    opacity: 0.6;
+    font-style: italic;
   }
 </style>

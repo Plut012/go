@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import OwnershipOverlay from './OwnershipOverlay.svelte';
 
   export let gameState = null;
 
@@ -12,6 +13,9 @@
 
   // Star points (hoshi) for different board sizes
   $: starPoints = getStarPoints(boardSize);
+
+  // Get ownership data if available
+  $: ownership = gameState?.ownership || null;
 
   function getStarPoints(size) {
     if (size === 19) {
@@ -56,6 +60,9 @@
         fill="#8b7355"
       />
     {/each}
+
+    <!-- Ownership overlay (territory estimation) -->
+    <OwnershipOverlay {ownership} {boardSize} {offset} cellSize={40} />
 
     <!-- Stones -->
     {#if gameState && gameState.board}

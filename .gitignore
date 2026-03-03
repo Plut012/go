@@ -10,6 +10,15 @@ frontend/dist
 game.json
 *.log
 
+# Large binary assets (download separately - see assets/katago/DOWNLOAD.md)
+assets/katago/katago
+assets/katago/*.bin.gz
+assets/katago/*.zip
+assets/katago/katago.log
+
+# Deployment artifacts
+/deploy/
+
 # OS
 .DS_Store
 .vscode/

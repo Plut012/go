@@ -13,7 +13,9 @@ use crate::state::{AppState, PlayerConnection};
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ClientMessage {
-    ChooseColor { color: Color },
+    ChooseColor {
+        color: Color,
+    },
     Move { x: usize, y: usize },
     Pass,
     Reset { board_size: usize },
@@ -30,6 +32,12 @@ enum ServerMessage {
         prisoners: Prisoners,
         players: Players,
         passes: u8,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        ownership: Option<Vec<Vec<f32>>>,
+        katago_available: bool,
+    },
+    OwnershipUpdate {
+        ownership: Vec<Vec<f32>>,
     },
     Error {
         message: String,
@@ -133,6 +141,9 @@ async fn broadcast_state(state: &AppState) {
         }
     }
 
+    // Check if KataGo is available
+    let katago_available = state.katago.lock().await.is_some();
+
     let msg = ServerMessage::State {
         board: game.get_board(),
         board_size: game.get_board_size(),
@@ -146,6 +157,8 @@ async fn broadcast_state(state: &AppState) {
             white: white_assigned,
         },
         passes: 0, // TODO: Track consecutive passes
+        ownership: None, // Ownership sent separately via broadcast_ownership
+        katago_available,
     };
 
     let json = serde_json::to_string(&msg).unwrap();
@@ -153,6 +166,55 @@ async fn broadcast_state(state: &AppState) {
     // Send to all connections
     for conn in connections.values() {
         let _ = conn.sender.send(json.clone());
+    }
+}
+
+/// Broadcast ownership data asynchronously (non-blocking)
+async fn broadcast_ownership(state: &AppState) {
+    // Check if KataGo is available
+    let katago_available = {
+        let katago_guard = state.katago.lock().await;
+        katago_guard.is_some()
+    };
+
+    if !katago_available {
+        return;
+    }
+
+    // Get current board state
+    let (board, board_size) = {
+        let game = state.game.lock().await;
+        (game.get_board(), game.get_board_size())
+    };
+
+    // Calculate ownership (this may take time)
+    let ownership = {
+        let mut katago_guard = state.katago.lock().await;
+        if let Some(katago_service) = katago_guard.as_mut() {
+            match katago_service.get_ownership(&board, board_size) {
+                Ok(ownership_data) => Some(ownership_data.ownership),
+                Err(e) => {
+                    eprintln!("Failed to get ownership data: {}", e);
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    };
+
+    // If we got ownership data, broadcast it
+    if let Some(ownership_data) = ownership {
+        let msg = ServerMessage::OwnershipUpdate {
+            ownership: ownership_data,
+        };
+
+        let json = serde_json::to_string(&msg).unwrap();
+
+        let connections = state.connections.lock().await;
+        for conn in connections.values() {
+            let _ = conn.sender.send(json.clone());
+        }
     }
 }
 
@@ -182,7 +244,7 @@ async fn send_error(state: &AppState, conn_id: u64, message: String) {
 }
 
 /// Handle incoming message from client
-async fn handle_message(state: &AppState, conn_id: u64, text: &str) {
+async fn handle_message(state: &Arc<AppState>, conn_id: u64, text: &str) {
     let client_msg: ClientMessage = match serde_json::from_str(text) {
         Ok(msg) => msg,
         Err(e) => {
@@ -220,7 +282,7 @@ async fn handle_choose_color(state: &AppState, conn_id: u64, color: Color) {
         return;
     }
 
-    // Assign color
+    // Assign color to the player
     if let Some(conn) = connections.get_mut(&conn_id) {
         conn.color = Some(color);
     }
@@ -233,7 +295,7 @@ async fn handle_choose_color(state: &AppState, conn_id: u64, color: Color) {
 }
 
 /// Handle move attempt
-async fn handle_move(state: &AppState, conn_id: u64, x: usize, y: usize) {
+async fn handle_move(state: &Arc<AppState>, conn_id: u64, x: usize, y: usize) {
     let connections = state.connections.lock().await;
 
     // Get player's color
@@ -257,6 +319,12 @@ async fn handle_move(state: &AppState, conn_id: u64, x: usize, y: usize) {
     match result {
         Ok(()) => {
             broadcast_state(state).await;
+
+            // Spawn async task to calculate and broadcast ownership (non-blocking)
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                broadcast_ownership(&state_clone).await;
+            });
         }
         Err(e) => {
             send_error(state, conn_id, e).await;
@@ -265,7 +333,7 @@ async fn handle_move(state: &AppState, conn_id: u64, x: usize, y: usize) {
 }
 
 /// Handle pass
-async fn handle_pass(state: &AppState, conn_id: u64) {
+async fn handle_pass(state: &Arc<AppState>, conn_id: u64) {
     let connections = state.connections.lock().await;
 
     // Get player's color
@@ -293,6 +361,12 @@ async fn handle_pass(state: &AppState, conn_id: u64) {
     drop(game);
 
     broadcast_state(state).await;
+
+    // Spawn async task to calculate and broadcast ownership (non-blocking)
+    let state_clone = state.clone();
+    tokio::spawn(async move {
+        broadcast_ownership(&state_clone).await;
+    });
 }
 
 /// Handle game reset
@@ -310,3 +384,4 @@ async fn handle_reset(state: &AppState, board_size: usize) {
 
     broadcast_state(state).await;
 }
+

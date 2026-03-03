@@ -6,8 +6,9 @@ use tower_http::services::ServeDir;
 use std::{net::SocketAddr, sync::Arc};
 
 mod game;
-mod ws;
+mod katago;
 mod state;
+mod ws;
 
 use state::AppState;
 

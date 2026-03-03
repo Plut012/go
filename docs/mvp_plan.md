@@ -4,9 +4,11 @@
 
 **Build a working Go game first. Make it magical later.**
 
-The MVP is standard Go—traditional rules, simple visuals, rock-solid implementation. Two players connect, choose Black or White, and play a complete game. No fancy themes. No evolving pieces. Just circles on a board and bulletproof game logic.
+The MVP is standard Go—traditional rules, simple visuals, rock-solid implementation. Two players connect, choose Black or White, and play a complete game. Territory overlay shows influence in real-time.
 
-The theme system (scouts → legions, army selection, visual evolution) comes after the game works perfectly.
+Visual themes (scouts → legions, army selection, visual evolution) come after the core game is polished.
+
+**Status:** MVP complete. Territory estimation integrated. Deployment tested.
 
 ---
 

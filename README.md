@@ -3,47 +3,74 @@
 *"Every time you place a stone on the board, you are exposing something of yourself."*
 — Takeo Kajiwara
 
-You've found something.
+## What This Is
 
-## The Board
+A web-based Go game with real-time territory estimation. Two players connect, place stones, and watch influence flow across the board through subtle visual overlays powered by KataGo neural network analysis.
 
-A lone stone appears as a scout—watchful, vulnerable. Place another beside it: they recognize each other, become a patrol. Add more and a banner rises. The pieces don't just occupy intersections. They remember. They grow in the presence of allies. They face enemies together.
+Standard rules. Clean design. Machine learning that helps you see the game's hidden structure.
 
-Territory transforms as you play. Scorched earth where attackers advance. Cultivated fields where defenders hold ground. When a group falls, stones don't simply disappear—they crumble. The board absorbs them. The game continues.
+## Features
 
-This is not simulation. This is how the board has always worked. You've just never seen it before.
+**Core Game:**
+- Standard 19×19 Go (9×9 and 13×13 coming)
+- Real-time WebSocket synchronization
+- Capture detection and ko rule enforcement
+- Pass/reset functionality
 
-Ancient game. Ancient magic. Minimal. Tasteful. Real.
+**Territory Overlay:**
+- KataGo-powered ownership estimation
+- Subtle heat map visualization (black/white influence)
+- ~1 second analysis per position (CPU-optimized)
+- Position caching for instant repeated queries
 
-## The Vibe
+**Architecture:**
+- Single Rust binary serves everything
+- Svelte frontend with hot reload (dev mode)
+- Zero runtime dependencies
+- Works on phones (same WiFi or via ngrok)
 
-Stones evolve: scout → patrol → war band → battalion → legion with siege engines.
-
-Territory responds: farmland vs scorched earth. Camps become keeps. Keeps become citadels.
-
-Simple rules. Deep presence. Every move reshapes what was and what becomes.
-
-## The Philosophy
+## Philosophy
 
 Simple. Robust. Concise. Clean. Decoupled.
 
-Every line earns its place. No abstractions for abstraction's sake. The backend knows the rules. The frontend knows how things look. Neither knows about the other. That's how it should be.
+Every line earns its place. The backend knows the rules. The frontend knows how things look. KataGo sees what humans can't. One binary deploys anywhere.
 
----
+## Quick Start
+
+**Development:**
+```bash
+cargo run              # Terminal 1: backend
+cd frontend && npm run dev  # Terminal 2: frontend
+# Open http://localhost:5173
+```
+
+**Production:**
+```bash
+./build.sh             # Build everything
+./target/release/go-server  # Run
+# Open http://localhost:3000
+```
+
+**Deploy:**
+```bash
+./deploy.sh            # Package for deployment
+# Copy deploy/ to any server, run ./run.sh
+```
+
+See [DEPLOY.md](DEPLOY.md) for complete deployment guide.
 
 ## Tech Stack
 
-- **Rust backend** - Because game rules should be bulletproof
-- **Svelte frontend** - Because UIs should disappear
-- **SVG + themes** - Because your stones deserve better than circles
-- **WebSocket** - Because waiting is for chumps
+- **Rust + Axum** - Game logic, WebSocket, static serving
+- **Svelte + Vite** - Reactive UI with hot reload
+- **KataGo** - Neural network territory estimation
+- **SVG** - Scalable board rendering
 
-Zero runtime dependencies. One binary. No database. No bullshit.
+Single binary. 310MB deployed (or 10MB without KataGo). No database.
 
-## Getting Started
+## Status
 
-See [docs/setup.md](docs/setup.md) for the boring details.
-
-## Current Status
-MVP in progress. Core game logic and visual themes coming soon.
+**Working:** Core game, WebSocket sync, territory estimation, deployment workflow
+**Next:** Visual themes (scouts → legions evolution), mobile optimization
+**Future:** Theme selection, army factions, board size selector
 

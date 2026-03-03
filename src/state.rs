@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, mpsc};
 use crate::game::{Game, Color};
+use crate::katago::{KataGoService, KataGoConfig};
 
 /// Unique identifier for each WebSocket connection
 pub type ConnectionId = u64;
@@ -17,14 +18,29 @@ pub struct AppState {
     pub game: Arc<Mutex<Game>>,
     pub connections: Arc<Mutex<HashMap<ConnectionId, PlayerConnection>>>,
     pub next_connection_id: Arc<Mutex<ConnectionId>>,
+    pub katago: Arc<Mutex<Option<KataGoService>>>,
 }
 
 impl AppState {
     pub fn new() -> Self {
+        // Try to initialize KataGo service (graceful fallback if unavailable)
+        let katago_service = match KataGoService::new(KataGoConfig::default()) {
+            Ok(service) => {
+                println!("✓ KataGo service initialized successfully");
+                Some(service)
+            }
+            Err(e) => {
+                println!("⚠ KataGo not available: {}", e);
+                println!("  AI opponent and territory estimation features will be disabled");
+                None
+            }
+        };
+
         Self {
             game: Arc::new(Mutex::new(Game::new())),
             connections: Arc::new(Mutex::new(HashMap::new())),
             next_connection_id: Arc::new(Mutex::new(0)),
+            katago: Arc::new(Mutex::new(katago_service)),
         }
     }
 
@@ -34,5 +50,10 @@ impl AppState {
         let current = *id;
         *id += 1;
         current
+    }
+
+    /// Check if KataGo service is available
+    pub async fn has_katago(&self) -> bool {
+        self.katago.lock().await.is_some()
     }
 }

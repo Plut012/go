@@ -11,6 +11,8 @@
   let myColor = null;
   let ws = null;
   let showSizeModal = false;
+  let aiMode = false;
+  let aiColor = null;
 
   onMount(async () => {
     // Load default theme
@@ -35,6 +37,11 @@
   function handleMessage(data) {
     if (data.type === 'state') {
       gameState = data;
+    } else if (data.type === 'ownership_update') {
+      // Update ownership data separately without replacing entire state
+      if (gameState) {
+        gameState = { ...gameState, ownership: data.ownership };
+      }
     } else if (data.type === 'your_color') {
       myColor = data.color;
     } else if (data.type === 'error') {
@@ -45,7 +52,16 @@
 
   function chooseColor(color) {
     if (ws) {
-      ws.send(JSON.stringify({ type: 'choose_color', color }));
+      // If AI mode is enabled, set AI to play opposite color
+      if (aiMode) {
+        aiColor = color === 'black' ? 'white' : 'black';
+      }
+
+      ws.send(JSON.stringify({
+        type: 'choose_color',
+        color,
+        ai_mode: aiMode
+      }));
     }
   }
 
@@ -76,6 +92,18 @@
   function closeSizeModal() {
     showSizeModal = false;
   }
+
+  function requestAIMove() {
+    if (ws && connected && aiMode) {
+      ws.send(JSON.stringify({ type: 'request_ai_move' }));
+    }
+  }
+
+  // Trigger AI move after human moves in AI mode
+  $: if (aiMode && gameState && gameState.turn === aiColor && connected && myColor) {
+    // Small delay to let UI update
+    setTimeout(requestAIMove, 100);
+  }
 </script>
 
 <main>
@@ -89,12 +117,21 @@
         <h2>Choose your color</h2>
         <button on:click={() => chooseColor('black')}>Play as Black</button>
         <button on:click={() => chooseColor('white')}>Play as White</button>
+
+        {#if gameState?.katago_available}
+          <div class="ai-option">
+            <label class="ai-checkbox">
+              <input type="checkbox" bind:checked={aiMode} />
+              <span>vs AI</span>
+            </label>
+          </div>
+        {/if}
       </div>
     </div>
   {:else}
     <div class="game-layout">
       <aside class="sidebar">
-        <GameInfo {gameState} {myColor} on:pass={pass} on:reset={requestReset} />
+        <GameInfo {gameState} {myColor} {aiMode} {aiColor} on:pass={pass} on:reset={requestReset} />
       </aside>
       <div class="board-area">
         <Board {gameState} on:move={(e) => makeMove(e.detail.x, e.detail.y)} />
@@ -149,6 +186,31 @@
 
   .color-selection button:hover {
     background: #3a3a3a;
+  }
+
+  .ai-option {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .ai-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.8;
+  }
+
+  .ai-checkbox:hover {
+    opacity: 1;
+  }
+
+  .ai-checkbox input[type="checkbox"] {
+    cursor: pointer;
   }
 
   .game-layout {
